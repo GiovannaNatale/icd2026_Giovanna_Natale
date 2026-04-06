@@ -277,6 +277,7 @@ receita_media_cidade <-
 
 # Exibe o resultado
 receita_media_cidade
+#===============================================================================
 
 
 
