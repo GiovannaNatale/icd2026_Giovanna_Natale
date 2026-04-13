@@ -171,8 +171,36 @@ dados_marketing_limpos |>
 
 dados_marketing_limpos |> 
   filter(receita_vendas > "1000")
+
+#===============================================================================
+
+# filtra semanas com promocao e receita maior que 1000
+dados_marketing_limpos |>
+  filter(promocao == 1 & receita_vendas > 1000) |>
+  select(data, mes, receita_vendas, status_promocao)
+
 #===============================================================================
 
 # Exercicio 9 -------------------------------------------------------------
 
 #===============================================================================
+
+# cria um objeto com o resumo dos dados por mês
+resumo_mensal <- dados_marketing_limpos |>
+  group_by(mes) |>
+  summarise(
+    receita_media = mean(receita_vendas),
+    receita_total = sum(receita_vendas),
+    gasto_total_medio = mean(gasto_total),
+    semanas_com_promocao = sum(promocao)
+  ) |>
+  arrange(desc(receita_media))
+
+# mostra o resultado ordenado
+resumo_mensal
+
+# visualiza o resultado no RStudio
+View(resumo_mensal)
+
+# os tres meses com maior receita media sao:
+# mes 12, mes 11 e mes 10

@@ -65,3 +65,13 @@ df |> filter(condição)
 
 # Cada tipo de arquivo tem um tipo de função para ler 
 
+
+
+
+
+# GIT
+# 1- git status
+# 2- git add .
+# 3- git status
+# 4- git commit -m "mensagem"
+# 5- git push origin main 
