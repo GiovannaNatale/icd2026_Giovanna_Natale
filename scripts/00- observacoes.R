@@ -13,6 +13,8 @@
 # Ctrl + shift + R = Criar uma sessão
 # Ctrl + shift + M = |> 
 # Alt + - = <-  (atribuição)
+# Ctrl = Alt + i = ```{r} (célula de código)
+
 
 # Pipeline = sequencia de operações
 
