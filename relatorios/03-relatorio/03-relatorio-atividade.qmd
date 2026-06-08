@@ -1,6 +1,6 @@
 ---
 title: "03-relatorio-atividade"
-format: html
+format: pdf
 ---
 
 ---
@@ -9,7 +9,7 @@ title: "Análise Descritiva do Crédito da CoopCredMinas em 2025"
 author: "Seu nome"
 date: today
 format:
-  html:
+  html: 
     embed-resources: true
     toc: true
 bibliography: referencias.bib
