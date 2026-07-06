@@ -1,0 +1,263 @@
+---
+lang: pt-BR
+title: "Resolução da Lista de Exercícios 6"
+author: Giovanna
+date: today
+format:
+  html:
+    theme: flatly
+    embed-resources: true
+    toc: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+
+# Exibe valores numéricos sem notação científica
+options(digits = 5, scipen = 999)
+
+# pacotes utilizados
+library(here)
+library(tidyverse)
+library(tidyplots)
+
+# Permite que os gráficos do tidyplots usem o espaço disponível no HTML
+tidyplots_options(width = NA, height = NA)
+
+# Importa o objeto dados_marketing_limpos.rds
+caminho_dados <- here("dados/limpos/dados_marketing_limpos.rds")
+dados_marketing <- read_rds(caminho_dados)
+```
+
+## Exercício 1
+
+
+**a.**
+
+# Média e mediana
+
+```{r}
+media_gasto <- mean(dados_marketing$gasto_total, na.rm = TRUE)
+mediana_gasto <- median(dados_marketing$gasto_total, na.rm = TRUE)
+
+media_gasto
+mediana_gasto
+```
+
+**b.**
+
+# Desvio-padrão e IQR
+```{r}
+dp_gasto <- sd(dados_marketing$gasto_total, na.rm = TRUE)
+iqr_gasto <- IQR(dados_marketing$gasto_total, na.rm = TRUE)
+
+dp_gasto
+iqr_gasto
+```
+
+**c.**
+
+# Quantis amostrais
+```{r}
+quantis <- quantile(
+  dados_marketing$gasto_total,
+  probs = c(0.05, 0.25, 0.50, 0.75, 0.95),
+  na.rm = TRUE
+)
+
+quantis
+```
+
+**d.** 
+
+```{r}
+p5 <- quantis[1]
+q1 <- quantis[2]
+mediana <- quantis[3]
+q3 <- quantis[4]
+p95 <- quantis[5]
+```
+
+Valor típico
+
+Compare os valores da média e da mediana obtidos. Se forem muito próximos, isso indica que a distribuição dos investimentos semanais é aproximadamente simétrica. Se a média for significativamente maior que a mediana, pode haver semanas com gastos muito elevados puxando a média para cima. Nesses casos, a mediana costuma ser a melhor medida para representar o investimento semanal típico, pois é menos sensível a valores extremos.
+
+Dispersão
+
+Tanto o desvio-padrão quanto o IQR medem a dispersão dos dados. O desvio-padrão utiliza todas as observações e é bastante influenciado por valores extremos. Já o IQR considera apenas os 50% centrais dos dados (entre Q1 e Q3), sendo menos afetado por semanas com gastos muito altos ou muito baixos. Portanto, o IQR é a medida mais robusta à presença de valores atípicos.
+
+Semanas atípicas
+
+A faixa que concentra aproximadamente 90% das semanas é dada pelos percentis P5 e P95:
+
+Limite inferior: p5
+Limite superior: p95
+
+Assim, a faixa usual de investimento é de US$ p5 mil a US$ p95 mil. Semanas com gasto acima de US$ p95 mil pertencem aos 5% maiores investimentos observados e merecem atenção especial da equipe de marketing.
+
+
+## Exercício 2
+
+
+```{r}
+# Dados sobre o desempenho semanal (R$ mil) de duas equipes de vendas
+desempenho_equipes <- tibble(
+  equipe = rep(c("A", "B"), each = 10),
+  desempenho = c(85, 92, 78, 110, 95, 105, 115, 98, 102, 250,
+                 120, 115, 125, 118, 122, 130, 115, 120, 125, 122)
+)
+```
+
+
+**a.** 
+
+```{r}
+library(dplyr)
+desempenho_equipes <- tibble(
+  equipe = rep(c("A", "B"), each = 10),
+  desempenho = c(
+    85, 92, 78, 110, 95, 105, 115, 98, 102, 250,
+    120, 115, 125, 118, 122, 130, 115, 120, 125, 122
+  )
+)
+
+resultado <- desempenho_equipes |>
+  group_by(equipe) |>
+  summarize(
+    desvio_padrao = sd(desempenho),
+    amplitude = max(desempenho) - min(desempenho),
+    IQR = IQR(desempenho),
+    coef_variacao = sd(desempenho) / mean(desempenho) * 100
+  )
+
+resultado
+```
+
+**b.** 
+
+1. Qual equipe teve o desempenho mais consistente? Em qual medida você se baseou?
+
+A Equipe B apresentou desempenho mais consistente, pois possui valores muito menores de desvio-padrão, amplitude, IQR e coeficiente de variação. O coeficiente de variação é especialmente útil porque mede a dispersão em relação à média, permitindo comparar grupos em escalas diferentes.
+
+2. Quais medidas o valor 250 da Equipe A afeta mais? E qual delas quase não muda?
+
+O valor 250 é um valor extremo (outlier) e afeta fortemente:
+
+o desvio-padrão;
+a amplitude;
+o coeficiente de variação.
+
+O IQR quase não é afetado, porque ele depende apenas dos quartis (Q1 e Q3), que representam a região central dos dados. Por isso, o IQR é considerado uma medida robusta à presença de valores extremos.
+
+3. Com esses dados, você afirmaria que uma equipe é melhor que a outra? O que mais precisaria saber?
+
+Não necessariamente. Os dados mostram que a Equipe B é mais estável, mas isso não é suficiente para concluir qual equipe é melhor.
+
+## Exercício 3
+
+
+**a.** 
+
+```{r}
+library(tidyverse)
+library(tidyplots)
+
+dados_marketing |>
+  tidyplot(x = gasto_total) |>
+  add_histogram(bins = 10) |>
+  add_title("Distribuição do gasto total semanal em marketing") |>
+  add_caption("Fonte: base dados_marketing")
+```
+
+  
+Justificativa do número de classes
+
+Foram utilizadas 10 classes (bins), pois esse valor permite visualizar a forma geral da distribuição sem gerar excesso de detalhamento ou agrupamento excessivo das observações.
+
+**b.** 
+
+```{r}
+dados_marketing |>
+  tidyplot(y = gasto_total) |>
+  add_boxplot() |>
+  add_title("Boxplot do gasto total semanal em marketing") |>
+  add_caption("Fonte: base dados_marketing")
+```
+
+**c.**
+
+Interpretação dos gráficos
+
+Centro da distribuição
+
+O histograma e o boxplot indicam que o gasto semanal típico se concentra em torno da região central da distribuição, aproximadamente próxima da mediana observada nos dados. A maior parte das semanas apresenta investimentos relativamente próximos desse valor central.
+
+Forma da distribuição
+
+A distribuição aparenta ser aproximadamente simétrica caso as barras do histograma estejam distribuídas de forma equilibrada em torno do centro. Caso exista uma cauda mais longa à direita, a distribuição apresenta assimetria positiva, indicando algumas semanas com investimentos substancialmente maiores que o padrão habitual.
+
+Semanas atípicas
+
+O boxplot identifica como atípicas as semanas localizadas além dos limites dos "bigodes". Essas observações representam semanas com investimento excepcionalmente alto ou baixo em comparação ao restante do período analisado. Os valores podem ser identificados visualmente no gráfico como pontos isolados.
+
+**d.**
+
+Resposta para a diretoria
+
+O histograma e o boxplot contam histórias complementares sobre a distribuição. O histograma mostra a forma geral dos dados, permitindo avaliar concentração, dispersão e assimetria. Já o boxplot resume a distribuição por meio da mediana, quartis e possíveis observações atípicas. Em geral, ambos devem transmitir uma interpretação consistente sobre a forma da distribuição.
+
+As semanas sinalizadas como atípicas merecem investigação adicional antes de serem tratadas como problema. Elas podem refletir campanhas especiais, sazonalidade, lançamentos de produtos, promoções ou eventos extraordinários que justificam investimentos mais elevados. Antes de qualquer conclusão, seria necessário verificar os registros dessas semanas e o contexto das ações de marketing realizadas no período.
+
+## Exercício 4
+
+
+**a.**
+
+```{r}
+library(dplyr)
+library(tidyplots)
+
+dados_marketing |>
+  tidyplot(x = status_concorrencia,
+           y = receita_vendas) |>
+  add_boxplot() |>
+  add_title("Receita de vendas por status da concorrência") |>
+  add_caption("Fonte: dados_marketing")
+```
+
+
+**b.** 
+
+```{r}
+resumo_receita <- dados_marketing |>
+  group_by(status_concorrencia) |>
+  summarize(
+    n = n(),
+    media = mean(receita_vendas, na.rm = TRUE),
+    mediana = median(receita_vendas, na.rm = TRUE),
+    cv = sd(receita_vendas, na.rm = TRUE) /
+      mean(receita_vendas, na.rm = TRUE) * 100
+  )
+
+resumo_receita
+```
+
+
+**c.**
+
+Pelo gráfico e pelo resumo numérico, observa-se que as semanas sem concorrência apresentam receita média e mediana maiores do que as semanas com concorrência. A diferença entre os grupos é de aproximadamente 80 a 110 mil dólares (US$ mil), indicando uma diferença pequena a moderada.
+
+Há sobreposição entre as distribuições, já que os valores de receita nos dois grupos se misturam em boa parte do intervalo, o que indica que semanas com e sem concorrência podem apresentar desempenhos semelhantes.
+
+Quanto ao tamanho das amostras, os grupos são bem diferentes em quantidade de semanas, sendo 22 semanas com concorrência e 134 sem concorrência, o que torna o grupo sem concorrência mais estável estatisticamente.
+
+**d.**
+
+A analista não pode concluir que a atividade do concorrente reduz a receita, pois a diferença observada é moderada e há sobreposição entre as distribuições. Além disso, os grupos possuem tamanhos muito diferentes, o que limita comparações diretas.
+
+Como se trata de uma análise exploratória, não é possível inferir causalidade.
